@@ -1,1 +1,33 @@
+from flask import Flask, request, jsonify
+import requests
+import logging
+
+app = Flask(__name__)
+logging.basicConfig(level=logging.INFO)
+
+@app.route('/numbers', methods=['GET'])
+def get_numbers():
+    urls = request.args.getlist('url')
+    merged_numbers = []
+
+    for url in urls:
+        try:
+            response = requests.get(url, timeout=0.5)
+            response.raise_for_status()  # Raises a HTTPError if the HTTP request returned an unsuccessful status code
+
+            data = response.json()
+            numbers = data.get('numbers', [])
+            merged_numbers.extend(numbers)
+        except requests.exceptions.Timeout:
+            logging.warning(f"Timeout while fetching {url}")
+        except requests.exceptions.HTTPError as http_err:
+            logging.error(f"HTTP error occurred: {http_err}")
+        except Exception as e:
+            logging.error(f"An error occurred: {e}")
+
+    merged_numbers = sorted(list(set(merged_numbers)))
+    return jsonify({'numbers': merged_numbers})
+
+if __name__ == '__main__':
+    app.run(port=8008)
 
