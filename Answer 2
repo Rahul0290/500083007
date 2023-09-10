@@ -1,1 +1,79 @@
+Application Structure
+
+- public/
+  -- index.html
+- src/
+  -- assets/
+  -- components/
+     --- TrainList.js
+     --- TrainDetails.js
+  -- services/
+     --- api.js
+  -- App.js
+  -- index.js
+
+
+
+Setting up API Calls (services/api.js)
+
+
+import axios from 'axios';
+
+const BASE_URL = 'http://20.244.56.144';
+
+const api = axios.create({
+  baseURL: BASE_URL,
+});
+
+export const getTrains = async (token) => {
+  const response = await api.get('/train/trains', {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return response.data;
+};
+
+export const getTrainDetails = async (token, trainNumber) => {
+  const response = await api.get(`/train/trains/${trainNumber}`, {
+    headers: {
+      'Authorization': `Bearer ${token}`
+    }
+  });
+  return response.data;
+};
+
+Components
+
+import React from 'react';
+
+function TrainList({ trains }) {
+  return (
+    <div>
+      {trains.map((train) => (
+        <div key={train.trainNumber}>
+          <h2>{train.trainName}</h2>
+          // ... Display other train details
+        </div>
+      ))}
+    </div>
+  );
+}
+
+export default TrainList;
+
+
+import React from 'react';
+
+function TrainDetails({ train }) {
+  return (
+    <div>
+      <h1>{train.trainName}</h1>
+      // ... Display train details
+    </div>
+  );
+}
+
+export default TrainDetails;
+
 
